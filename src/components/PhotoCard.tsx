@@ -4,9 +4,11 @@ import { UnsplashPhoto } from "../../types";
 
 interface PhotoCardProps {
   photo: UnsplashPhoto;
+  isLiked: any;
+  onLike: (id: string) => void;
 }
 
-const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
+const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onLike, isLiked }) => {
   const { id, urls, alt_description, user, likes } = photo;
 
   return (
@@ -30,10 +32,17 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo }) => {
         </div>
 
         <div className="flex items-center">
-          <FaHeart className="text-gray-500 ml-4 mr-2" />
+          <button onClick={() => onLike(photo.id)}>
+            {isLiked ? (
+              <FaHeart className="text-red-500 ml-4 mr-2" />
+            ) : (
+              <FaHeart className="text-gray-500 mr-2" />
+            )}
+          </button>
+
           <span className="text-gray-500 text-sm mr-2">{likes}</span>
           <FaEye className="text-gray-500 mr-2" />
-          <span className="text-gray-500 text-sm">N/A</span>{" "}
+          <span className="text-gray-500 text-sm">N/A</span>
         </div>
       </div>
     </div>
