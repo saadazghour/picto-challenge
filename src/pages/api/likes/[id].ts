@@ -16,18 +16,13 @@ export default async function handler(
   if (req.method === "GET") {
     try {
       const liked = await db.get(`likes-${id}`);
-      console.log(`Retrieved liked status for photo ${id}: ${liked}`);
       res.status(200).json({ id, liked });
     } catch (error) {
       const levelError = error as LevelError;
 
       if (levelError?.type === "NotFoundError") {
-        console.log(
-          `Like status not found for photo ${id}, returning default.`
-        );
         res.status(200).json({ id, liked: false });
       } else {
-        console.error(`Error retrieving liked status for photo ${id}:`, error);
         res
           .status(500)
           .json({ error: "Error retrieving like status", details: error });
@@ -43,11 +38,8 @@ export default async function handler(
       // Save the updated like status to the database
       await db.put(`likes-${id}`, liked);
 
-      // Log and return the updated like status
-      console.log(`Updated liked status for photo ${id} to ${liked}`);
       res.status(200).json({ id, liked });
     } catch (error) {
-      console.error(`Error updating liked status for photo ${id}:`, error);
       res
         .status(500)
         .json({ error: "Error updating like status", details: error });
