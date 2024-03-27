@@ -40,7 +40,10 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onLike, isLiked }) => {
             )}
           </button>
 
-          <span className="text-gray-500 text-sm mr-2">{likes}</span>
+          <span className="text-gray-500 text-sm mr-2">
+            {isLiked ? "1" : "0"}
+          </span>
+
           <FaEye className="text-gray-500 mr-2" />
           <span className="text-gray-500 text-sm">N/A</span>
         </div>
