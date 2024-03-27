@@ -6,22 +6,41 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { UnsplashPhoto } from "../../types";
 import PhotoCard from "../components/PhotoCard";
 import "./globals.css";
+import axios from "axios";
 
 export default function Home() {
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
+
   // It meant that we're initializing a state that is an object. This object will have strings as keys (which can be photo IDs) and boolean values indicating whether the photo is liked or not.
   const [likedPhotos, setLikedPhotos] = useState<Record<string, boolean>>({});
 
   const [hasMore, setHasMore] = useState(true); // Track if more items can be loaded
   const [page, setPage] = useState(1);
 
-  const handleLike = (id: string) => {
+  const handleLike = async (id: string) => {
     const isLiked = !likedPhotos[id];
 
-    setLikedPhotos((prevLikes: any) => ({
-      ...prevLikes,
-      [id]: isLiked || false,
-    }));
+    // Update the like status in the database (Leveldb)
+    try {
+      const res = await axios.post(
+        `/api/likes/${id}`,
+        {
+          liked: isLiked,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setLikedPhotos((prevLikes) => ({
+        ...prevLikes,
+        [id]: res.data.liked,
+      }));
+    } catch (error) {
+      console.error("Error updating like status:", error);
+    }
   };
 
   const fetchPhotos = async () => {
@@ -33,15 +52,27 @@ export default function Home() {
         return;
       }
 
+      // Fetch liked status for each photo and update likedPhotos state directly
+      fetchedPhotos.forEach(async (photo) => {
+        try {
+          const res = await axios.get(`/api/likes/${photo.id}`);
+          const liked = res.data.liked;
+
+          setLikedPhotos((prevLikes) => ({
+            ...prevLikes,
+            [photo.id]: liked,
+          }));
+        } catch (error) {
+          // If there's an error fetching the liked status, default to false
+          setLikedPhotos((prevLikes) => ({
+            ...prevLikes,
+            [photo.id]: false,
+          }));
+        }
+      });
+
       setPhotos((prevPhotos) => [...prevPhotos, ...fetchedPhotos]);
       setPage((prevPage) => prevPage + 1); // Increment page for next fetch
-
-      //  fetchedPhotos.forEach(async (photo) => {
-      //    const res = await fetch(`/api/likes/get?photoId=${photo.id}`);
-      //    const data = await res.json();
-      //    console.log("fetcheddd", data?.likes);
-      //    // setLikedPhotos((prev) => ({ ...prev, [photo.id]: data.likes }));
-      //  });
     } catch (error) {
       console.error(error);
     }
