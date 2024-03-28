@@ -39,7 +39,6 @@ export default function Home() {
       if (res.data.message === "Authentication successful") {
         setIsSignedIn(true);
         setTimeout(() => {
-          // Alternatively, if you're navigating to a different URL, use window.location.href = 'URL'
           router.push("/main");
         }, 1000); // Delay of 1000 milliseconds (1 second)
         setErrorMessage("Authentication successful");
@@ -57,10 +56,4 @@ export default function Home() {
   return !isSignedIn ? (
     <SignInPage error={errorMessage} onSignIn={handleSignIn} />
   ) : null;
-
-  // return !isSignedIn ? (
-  //   <SignInPage error={errorMessage} onSignIn={handleSignIn} />
-  // ) : (
-  //   <Main />
-  // );
 }
