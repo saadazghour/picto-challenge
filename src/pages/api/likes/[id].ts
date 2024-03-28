@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import db from "../../../services/db";
+import { dbInstance } from "../../../services/db";
 
 // Extending the Error object for LevelDB's specific error properties
 interface LevelError extends Error {
@@ -12,37 +12,45 @@ export default async function handler(
 ) {
   const { id } = req.query;
 
-  // Handle GET request - retrieve like status
-  if (req.method === "GET") {
-    try {
-      const liked = await db.get(`likes-${id}`);
-      res.status(200).json({ id, liked });
-    } catch (error) {
-      const levelError = error as LevelError;
+  try {
+    await dbInstance.open();
 
-      if (levelError?.type === "NotFoundError") {
-        res.status(200).json({ id, liked: false });
-      } else {
-        res
-          .status(500)
-          .json({ error: "Error retrieving like status", details: error });
+    // Handle GET request - retrieve like status
+    if (req.method === "GET") {
+      try {
+        const liked = await dbInstance.get(`likes-${id}`);
+        res.status(200).json({ id, liked });
+      } catch (error) {
+        const levelError = error as LevelError;
+
+        if (levelError?.type === "NotFoundError") {
+          res.status(200).json({ id, liked: false });
+        } else {
+          res
+            .status(500)
+            .json({ error: "Error retrieving like status", details: error });
+        }
       }
     }
-  }
 
-  // Handle POST request - update like status
-  else if (req.method === "POST") {
-    const { liked } = req.body;
+    // Handle POST request - update like status
+    else if (req.method === "POST") {
+      const { liked } = req.body;
 
-    try {
-      // Save the updated like status to the database
-      await db.put(`likes-${id}`, liked);
+      try {
+        await dbInstance.open();
+        // Save the updated like status to the database
+        await dbInstance.put(`likes-${id}`, liked);
 
-      res.status(200).json({ id, liked });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Error updating like status", details: error });
+        res.status(200).json({ id, liked });
+      } catch (error) {
+        res.status(500).json({
+          error: "Error updating like status",
+          details: error?.message,
+        });
+      }
     }
+  } finally {
+    await dbInstance.close();
   }
 }
