@@ -1,6 +1,20 @@
+import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 
-const SignInPage = () => {
+interface SignInPageProps {
+  onSignIn: (username: string, password: string) => void;
+  error: string;
+}
+
+const SignInPage: React.FC<SignInPageProps> = ({ onSignIn, error }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSignIn(username, password);
+  };
+
   return (
     <div className="flex min-h-screen bg-white">
       <div className="w-1/2 m-auto h-auto">
@@ -11,30 +25,45 @@ const SignInPage = () => {
             Welcome back! Please enter your details.
           </p>
 
-          <form className="space-y-6">
+          {error && (
+            <div
+              className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+              role="alert"
+            >
+              <span className="font-medium">Error!</span> {error}
+            </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block py-1 text-xl font-semibold text-gray-700"
               >
                 Email
               </label>
               <input
-                type="email"
+                id="username"
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your email"
               />
             </div>
             <div>
               <label
-                htmlFor="email"
+                htmlFor="password"
                 className="block py-1 text-xl font-semibold text-gray-700"
               >
                 Password
               </label>
               <input
+                id="password"
                 type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
               />
             </div>
