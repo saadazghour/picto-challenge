@@ -11,52 +11,54 @@ const users: Record<string, User> = {
   muser3: { password: "mpassword3", blocked: true },
 };
 
-// Define the database path
-const dbPath = "./level-db";
-
-// Initialize the database with JSON encoding for values
-const db = new Level(dbPath, { valueEncoding: "json" });
+// Initialize the database instance to null
+// let dbInstance: Level<string, User> | null = null;
+export let dbInstance: any = null;
 
 async function initializeDB() {
-  try {
-    console.log("Initializing database...");
-    // When we call Object.entries(users), it converts the users object into an array where each element is itself an array of two elements.
+  if (!dbInstance) {
+    try {
+      // Define the database path
+      const dbPath = "./level-db";
 
-    for (const [username, userInfo] of Object.entries(users)) {
-      // So, for the first iteration, the call would effectively be:
-      // await db.put("muser1", { password: "mpassword1", blocked: false });
+      // Initialize the database with JSON encoding for values
+      dbInstance = new Level(dbPath, { valueEncoding: "json" });
+      console.log("Initializing database...");
 
-      await db.put(username, userInfo);
-      console.log(`Inserted user: ${username}`, userInfo);
+      // When we call Object.entries(users), it converts the users object into an array where each element is itself an array of two elements.
+
+      for (const [username, userInfo] of Object.entries(users)) {
+        // So, for the first iteration, the call would effectively be:
+        // await db.put("muser1", { password: "mpassword1", blocked: false });
+
+        await dbInstance?.put(username, userInfo);
+        console.log(`Inserted user: ${username}`, userInfo);
+      }
+
+      console.log("Database initialized successfully.");
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      if (error) {
+        dbInstance = new Level("./level-db", { valueEncoding: "json" });
+        console.log("Reopening database...");
+        await dbInstance.open();
+      }
     }
-
-    console.log("Database initialized successfully.");
-  } catch (error) {
-    console.error("Failed to initialize database:", error);
-    process.exit(1); // Exit if cannot initialize DB properly
   }
+
+  return dbInstance;
 }
 
-// Main function to execute DB operations
-async function main() {
-  await initializeDB();
-}
+export const dbPromise = initializeDB();
 
 // After initializing the database and inserting the users...
-async function checkUser(username: string) {
+export async function checkUser(username: string) {
+  const db = await dbPromise;
+
   try {
-    const user = await db.get(username);
+    const user = await db?.get(username);
     console.log(`User ${username} exists with data:`, user);
   } catch (error) {
     console.error(`User ${username} not found:`, error);
   }
 }
-
-// Use this function to check Users exists after initializing the DB.
-main().then(() => {
-  checkUser("muser1");
-  checkUser("muser2");
-  checkUser("muser3");
-});
-
-export default db;
