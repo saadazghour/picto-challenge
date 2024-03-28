@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import db from "../../../services/db";
+import { dbPromise } from "../../../services/db";
 
 interface User {
   password: string;
@@ -23,6 +23,7 @@ export default async function handler(
   const { username, password } = req.body;
 
   try {
+    const db = await dbPromise;
     const user: User = await db.get(username);
 
     if (!user) {
