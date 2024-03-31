@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { dbPromise } from "../../../services/db";
+import { dbInstance } from "@/services/db";
 
 interface User {
   password: string;
@@ -23,8 +23,7 @@ export default async function handler(
   const { username, password } = req.body;
 
   try {
-    const db = await dbPromise;
-    const user: User = await db.get(username);
+    const user: User = await dbInstance.get(username);
 
     if (!user) {
       console.log(`User not found with username: ${username}`);
@@ -48,6 +47,7 @@ export default async function handler(
     return res.status(200).json({ message: "Authentication successful" });
   } catch (error) {
     console.error(`Error retrieving user ${username} from DB:`, error);
+
     return res.status(500).json({
       message: "An error occurred during the authentication process.",
     });
