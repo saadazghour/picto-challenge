@@ -12,7 +12,7 @@
     "leveldown": "level-js"
   },
   "engines": {
-    "node": "20.11.30"
+    "node": "v20.12.0"
   },
   "dependencies": {
     "axios": "^1.6.8",
@@ -28,7 +28,7 @@
     "@types/level": "^6.0.3",
     "@types/leveldown": "^4.0.6",
     "@types/levelup": "^5.1.5",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.0",
     "@types/react": "^18.2.70",
     "@types/react-dom": "^18.2.22",
     "autoprefixer": "^10.4.19",
