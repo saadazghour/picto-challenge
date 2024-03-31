@@ -9,6 +9,9 @@
 # 
 symbols.json
 
+#
+/level-db/
+
 # testing
 /coverage
 
