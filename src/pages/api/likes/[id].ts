@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { dbInstance } from "../../../services/db";
+import { closeDB, dbInstance, openDB } from "@/services/db";
 
 // Extending the Error object for LevelDB's specific error properties
 interface LevelError extends Error {
@@ -12,9 +12,9 @@ export default async function handler(
 ) {
   const { id } = req.query;
 
-  try {
-    await dbInstance.open();
+  await openDB();
 
+  try {
     // Handle GET request - retrieve like status
     if (req.method === "GET") {
       try {
@@ -38,12 +38,11 @@ export default async function handler(
       const { liked } = req.body;
 
       try {
-        await dbInstance.open();
         // Save the updated like status to the database
         await dbInstance.put(`likes-${id}`, liked);
 
         res.status(200).json({ id, liked });
-      } catch (error) {
+      } catch (error: any) {
         res.status(500).json({
           error: "Error updating like status",
           details: error?.message,
@@ -51,6 +50,6 @@ export default async function handler(
       }
     }
   } finally {
-    await dbInstance.close();
+    await closeDB();
   }
 }
