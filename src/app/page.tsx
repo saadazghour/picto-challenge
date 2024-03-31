@@ -11,20 +11,31 @@ import { checkUser, dbInstance, dbPromise } from "@/services/db";
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isInitilized, setIsInitilized] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    // Use this function to check Users exists after initializing the DB.
+    let isMounted = true;
+    // Check Users exists after initializing the DB.
+    const initialize = async () => {
+      await dbInstance.open();
+      if (isMounted) {
+        await checkUser("muser1");
+        await checkUser("muser2");
+        await checkUser("muser3");
+        setIsInitilized(true);
+      }
+    };
 
-    dbPromise.then(() => {
-      checkUser("muser1");
-      checkUser("muser2");
-      checkUser("muser3");
-    });
+    if (!isInitilized) {
+      initialize();
+    }
 
-    dbInstance.open();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [isInitilized]);
 
   const handleSignIn = async (username: string, password: string) => {
     console.log("Attempting to sign in with:", username, password);
