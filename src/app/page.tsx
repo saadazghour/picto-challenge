@@ -7,7 +7,7 @@ import "./globals.css";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
-import { checkUser, dbInstance, dbPromise } from "@/services/db";
+import { checkUser, dbInstance } from "@/services/db";
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
