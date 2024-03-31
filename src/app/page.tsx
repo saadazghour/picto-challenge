@@ -13,6 +13,7 @@ export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isInitilized, setIsInitilized] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
