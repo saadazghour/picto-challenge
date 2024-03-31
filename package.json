@@ -12,7 +12,7 @@
     "leveldown": "level-js"
   },
   "engines": {
-    "node": "v18.18.2"
+    "node": "18.x"
   },
   "dependencies": {
     "axios": "^1.6.8",
